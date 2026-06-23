@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* ===== COULEURS OCP ===== */
+:root {
+  --ocp-green: #006233;
+  --ocp-green-light: #008a47;
+  --ocp-green-dark: #004525;
+  --ocp-gold: #c9a03d;
+}
+
+.bg-ocp {
+  background-color: var(--ocp-green);
+}
+
+.bg-ocp-light {
+  background-color: var(--ocp-green-light);
+}
+
+.text-ocp {
+  color: var(--ocp-green);
+}
+
+.border-ocp {
+  border-color: var(--ocp-green);
+}
+
+.hover\:bg-ocp-dark:hover {
+  background-color: var(--ocp-green-dark);
+}
+
+.btn-ocp {
+  background-color: var(--ocp-green);
+  transition: all 0.2s ease;
+}
+
+.btn-ocp:hover {
+  background-color: var(--ocp-green-dark);
+  transform: translateY(-1px);
+}
+
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
+}
