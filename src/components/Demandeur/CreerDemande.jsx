@@ -160,7 +160,7 @@ const CreerDemande = () => {
                     {/* Engin disponible */}
                     <div>
                         <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                            Engin disponible <span className="text-red-500">*</span>
+                            Capacité <span className="text-red-500">*</span>
                         </label>
                         {loadingEngins ? (
                             <div className="flex items-center gap-2 text-gray-500 text-sm">

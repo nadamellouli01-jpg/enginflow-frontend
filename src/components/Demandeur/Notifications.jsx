@@ -34,7 +34,7 @@ const Notifications = () => {
             fetchNotifications();
         } catch (error) {
             console.error('Erreur:', error);
-            toast.error('❌ Erreur lors de l\'acceptation. Veuillez réessayer.');
+            toast.error('❌ Erreur lors de l\'acceptation');
         }
     };
 
@@ -45,7 +45,7 @@ const Notifications = () => {
             fetchNotifications();
         } catch (error) {
             console.error('Erreur:', error);
-            toast.error('❌ Erreur lors du refus. Veuillez réessayer.');
+            toast.error('❌ Erreur lors du refus');
         }
     };
 
@@ -53,9 +53,11 @@ const Notifications = () => {
         setExpandedId(expandedId === id ? null : id);
     };
 
+    // ✅ FormatDate qui accepte les chaînes et les objets Date
     const formatDate = (dateStr) => {
         if (!dateStr) return '—';
-        const date = new Date(dateStr);
+        const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+        if (isNaN(date.getTime())) return '—';
         return date.toLocaleString('fr-FR', {
             day: '2-digit',
             month: '2-digit',
@@ -65,7 +67,7 @@ const Notifications = () => {
         });
     };
 
-    // Récupérer les modifications avec ancienne et nouvelle valeur
+    // ✅ Récupérer les modifications (tous les champs)
     const getModifications = (demande) => {
         const modifs = [];
 
@@ -75,14 +77,29 @@ const Notifications = () => {
 
                 Object.keys(parsed).forEach((champ) => {
                     const change = parsed[champ];
+
+                    // Déterminer le nom du champ
+                    let nomChamp = champ;
+                    if (champ === 'dateHeureDebut') nomChamp = 'Début';
+                    else if (champ === 'dateHeureFin') nomChamp = 'Fin';
+                    else if (champ === 'lieu') nomChamp = 'Lieu';
+                    else if (champ === 'motif') nomChamp = 'Motif';
+                    else if (champ === 'codeInventaire') nomChamp = 'Engin';
+
+                    // Formater les valeurs (dates ou texte)
+                    let ancien = change.ancien;
+                    let nouveau = change.nouveau;
+
+                    // Si c'est une date, la formater
+                    if (champ === 'dateHeureDebut' || champ === 'dateHeureFin') {
+                        ancien = formatDate(change.ancien);
+                        nouveau = formatDate(change.nouveau);
+                    }
+
                     modifs.push({
-                        champ: champ === 'dateHeureDebut' ? 'Début' :
-                            champ === 'dateHeureFin' ? 'Fin' :
-                                champ === 'lieu' ? 'Lieu' :
-                                    champ === 'motif' ? 'Motif' :
-                                        champ === 'codeInventaire' ? 'Engin' : champ,
-                        ancien: formatDate(change.ancien) || change.ancien,
-                        nouveau: formatDate(change.nouveau) || change.nouveau
+                        champ: nomChamp,
+                        ancien: ancien,
+                        nouveau: nouveau
                     });
                 });
             } catch (e) {
@@ -105,65 +122,65 @@ const Notifications = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-3 sm:p-6">
-            <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100">
-                <div className="flex flex-wrap items-center justify-between border-b pb-3 mb-4 sm:mb-5">
+        <div className="max-w-4xl mx-auto p-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div className="flex items-center justify-between border-b pb-3 mb-5">
                     <div className="flex items-center gap-2">
-                        <i className="fas fa-bell text-[#006233] text-lg sm:text-xl"></i>
-                        <h2 className="text-lg sm:text-xl font-bold text-gray-800">Notifications</h2>
+                        <i className="fas fa-bell text-[#006233] text-xl"></i>
+                        <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
                     </div>
-                    <span className="bg-amber-100 text-amber-700 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-semibold">
+                    <span className="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full font-semibold">
                         {demandesModifiees.length} modification(s)
                     </span>
                 </div>
 
                 {demandesModifiees.length === 0 ? (
-                    <div className="text-center py-10 sm:py-12">
-                        <i className="fas fa-check-circle text-3xl sm:text-4xl text-green-300 mb-3"></i>
-                        <p className="text-gray-400 text-sm sm:text-base">Aucune notification</p>
-                        <p className="text-xs sm:text-sm text-gray-400">Toutes vos demandes sont à jour</p>
+                    <div className="text-center py-12">
+                        <i className="fas fa-check-circle text-4xl text-green-300 mb-3"></i>
+                        <p className="text-gray-400">Aucune notification</p>
+                        <p className="text-sm text-gray-400">Toutes vos demandes sont à jour</p>
                     </div>
                 ) : (
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-4">
                         {demandesModifiees.map((demande) => {
                             const modifications = getModifications(demande);
                             const isExpanded = expandedId === demande.id;
 
                             return (
-                                <div key={demande.id} className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200">
+                                <div key={demande.id} className="bg-amber-50 rounded-xl p-4 border border-amber-200">
                                     {/* En-tête */}
-                                    <div className="flex flex-wrap justify-between items-start mb-2">
+                                    <div className="flex justify-between items-start mb-2">
                                         <div>
-                                            <span className="font-bold text-amber-800 text-sm sm:text-base">Demande #{demande.id}</span>
-                                            <p className="text-xs sm:text-sm text-gray-600">
+                                            <span className="font-bold text-amber-800">Demande #{demande.id}</span>
+                                            <p className="text-sm text-gray-600">
                                                 {demande.engin?.typeEngin || '—'} • {demande.lieu || '—'}
                                             </p>
                                         </div>
-                                        <span className="bg-amber-200 text-amber-700 text-[10px] sm:text-xs px-2 py-1 rounded-full font-semibold">
+                                        <span className="bg-amber-200 text-amber-700 text-xs px-2 py-1 rounded-full font-semibold">
                                             ✏️ Modifiée
                                         </span>
                                     </div>
 
                                     {/* 💬 Commentaire de l'admin */}
                                     {demande.commentaireAdmin && (
-                                        <div className="bg-white p-2 sm:p-3 rounded-lg border border-amber-100 mb-2 sm:mb-3">
-                                            <p className="text-xs sm:text-sm text-gray-700">
+                                        <div className="bg-white p-3 rounded-lg border border-amber-100 mb-3">
+                                            <p className="text-sm text-gray-700">
                                                 <span className="font-semibold text-amber-700">💬 Admin :</span> {demande.commentaireAdmin}
                                             </p>
                                         </div>
                                     )}
 
-                                    {/* ✏️ Modifications proposées */}
+                                    {/* ✏️ Modifications proposées (tous les champs) */}
                                     {modifications.length > 0 && (
-                                        <div className="bg-white p-2 sm:p-3 rounded-lg border border-amber-100 mb-2 sm:mb-3">
-                                            <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">✏️ Modifications proposées :</p>
-                                            <div className="space-y-0.5 sm:space-y-1">
+                                        <div className="bg-white p-3 rounded-lg border border-amber-100 mb-3">
+                                            <p className="text-sm font-semibold text-gray-700 mb-2">✏️ Modifications proposées :</p>
+                                            <div className="space-y-1">
                                                 {modifications.map((mod, index) => (
-                                                    <div key={index} className="text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2">
+                                                    <div key={index} className="text-sm flex items-center gap-2 flex-wrap">
                                                         <span className="font-medium text-gray-600">{mod.champ} :</span>
-                                                        <span className="text-red-500 line-through text-[10px] sm:text-xs">{mod.ancien}</span>
+                                                        <span className="text-red-500 line-through">{mod.ancien}</span>
                                                         <span className="text-gray-400">→</span>
-                                                        <span className="text-green-600 font-medium text-[10px] sm:text-xs">{mod.nouveau}</span>
+                                                        <span className="text-green-600 font-medium">{mod.nouveau}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -171,10 +188,10 @@ const Notifications = () => {
                                     )}
 
                                     {/* Boutons */}
-                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
+                                    <div className="flex flex-wrap items-center gap-3 mt-3">
                                         <button
                                             onClick={() => toggleDetails(demande.id)}
-                                            className="text-[#006233] hover:text-[#004525] text-xs sm:text-sm font-medium underline-offset-2 hover:underline transition"
+                                            className="text-[#006233] hover:text-[#004525] text-sm font-medium underline-offset-2 hover:underline transition"
                                         >
                                             <i className="fas fa-chevron-down mr-1"></i>
                                             {isExpanded ? 'Masquer les détails' : 'Voir les détails complets'}
@@ -182,14 +199,14 @@ const Notifications = () => {
 
                                         <button
                                             onClick={() => handleAccept(demande.id)}
-                                            className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1 sm:gap-2 transition"
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition"
                                         >
                                             <i className="fas fa-check"></i> Accepter
                                         </button>
 
                                         <button
                                             onClick={() => handleReject(demande.id)}
-                                            className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1 sm:gap-2 transition"
+                                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition"
                                         >
                                             <i className="fas fa-times"></i> Refuser
                                         </button>
@@ -197,9 +214,9 @@ const Notifications = () => {
 
                                     {/* Détails complets */}
                                     {isExpanded && (
-                                        <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
-                                            <h4 className="font-semibold text-gray-700 text-sm sm:text-base mb-2 sm:mb-3">📄 Détails complets</h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
+                                        <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                            <h4 className="font-semibold text-gray-700 mb-3">📄 Détails complets</h4>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
                                                 <div><span className="font-medium text-gray-500">ID :</span> #{demande.id}</div>
                                                 <div><span className="font-medium text-gray-500">Type :</span> {demande.engin?.typeEngin || '—'}</div>
                                                 <div><span className="font-medium text-gray-500">Début :</span> {formatDate(demande.dateHeureDebut)}</div>
@@ -207,7 +224,7 @@ const Notifications = () => {
                                                 <div><span className="font-medium text-gray-500">Lieu :</span> {demande.lieu || '—'}</div>
                                                 <div><span className="font-medium text-gray-500">Motif :</span> {demande.motif || '—'}</div>
                                                 <div><span className="font-medium text-gray-500">Statut :</span>
-                                                    <span className="bg-amber-200 text-amber-700 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs ml-1">MODIFIEE</span>
+                                                    <span className="bg-amber-200 text-amber-700 px-2 py-0.5 rounded-full text-xs ml-1">MODIFIEE</span>
                                                 </div>
                                                 <div><span className="font-medium text-gray-500">Engin :</span> {demande.engin?.codeInventaire || '—'}</div>
                                             </div>

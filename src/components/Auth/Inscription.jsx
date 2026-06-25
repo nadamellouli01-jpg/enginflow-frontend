@@ -8,8 +8,8 @@ const Inscription = () => {
         nom: '',
         prenom: '',
         email: '',
-        motDePasse: '',
-        role: 'DEMANDEUR'
+        motDePasse: ''
+        // ✅ Supprimé 'role' car toujours DEMANDEUR
     });
     const { register } = useAuth();
     const navigate = useNavigate();
@@ -20,7 +20,9 @@ const Inscription = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await register(formData);
+        // ✅ Le rôle est toujours DEMANDEUR
+        const data = { ...formData, role: 'DEMANDEUR' };
+        const result = await register(data);
         if (result.success) {
             toast.success('Inscription réussie ! Connectez-vous.');
             navigate('/login');
@@ -49,7 +51,7 @@ const Inscription = () => {
                     {/* Titre */}
                     <div className="text-center mb-6">
                         <h1 className="text-4xl font-extrabold tracking-tight">
-                            <span className="text-gray-800">Engin</span><span className="text-ocp">Flow</span>
+                            <span className="text-gray-800">Engin</span><span className="text-[#006233]">Flow</span>
                         </h1>
                         <p className="text-gray-600 text-sm font-medium mt-2">
                             Créer votre compte
@@ -58,9 +60,8 @@ const Inscription = () => {
                         <div className="w-16 h-1 bg-[#c9a03d] mx-auto mt-4 rounded-full"></div>
                     </div>
 
-                    {/* Formulaire */}
+                    {/* Formulaire - Sans select de rôle */}
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Nom */}
                         <div>
                             <input
                                 type="text"
@@ -68,12 +69,11 @@ const Inscription = () => {
                                 placeholder="Nom *"
                                 value={formData.nom}
                                 onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-ocp focus:border-transparent outline-none transition"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#006233] focus:border-transparent outline-none transition"
                                 required
                             />
                         </div>
 
-                        {/* Prénom */}
                         <div>
                             <input
                                 type="text"
@@ -81,12 +81,11 @@ const Inscription = () => {
                                 placeholder="Prénom *"
                                 value={formData.prenom}
                                 onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-ocp focus:border-transparent outline-none transition"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#006233] focus:border-transparent outline-none transition"
                                 required
                             />
                         </div>
 
-                        {/* Email */}
                         <div>
                             <input
                                 type="email"
@@ -94,12 +93,11 @@ const Inscription = () => {
                                 placeholder="Email *"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-ocp focus:border-transparent outline-none transition"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#006233] focus:border-transparent outline-none transition"
                                 required
                             />
                         </div>
 
-                        {/* Mot de passe */}
                         <div>
                             <input
                                 type="password"
@@ -107,44 +105,30 @@ const Inscription = () => {
                                 placeholder="Mot de passe * (min 6 caractères)"
                                 value={formData.motDePasse}
                                 onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-ocp focus:border-transparent outline-none transition"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#006233] focus:border-transparent outline-none transition"
                                 required
                                 minLength="6"
                             />
                         </div>
 
-                        {/* Rôle */}
-                        <div>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-ocp focus:border-transparent outline-none transition bg-white text-gray-700"
-                            >
-                                <option value="DEMANDEUR">👤 Demandeur</option>
-                                <option value="ADMINISTRATEUR">🛡️ Administrateur</option>
-                            </select>
-                        </div>
+                        {/* ✅ Le rôle est automatiquement DEMANDEUR - Pas de select */}
 
-                        {/* Bouton */}
                         <button
                             type="submit"
-                            className="btn-ocp w-full text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-base"
+                            className="bg-[#006233] hover:bg-[#004525] w-full text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-base transition"
                         >
                             <i className="fas fa-user-plus"></i> S'inscrire
                         </button>
                     </form>
 
-                    {/* Lien vers connexion */}
                     <p className="text-center text-sm text-gray-600 mt-6">
                         Déjà un compte ?{' '}
-                        <Link to="/login" className="text-ocp font-semibold hover:underline">
+                        <Link to="/login" className="text-[#006233] font-medium hover:underline">
                             Se connecter
                         </Link>
                     </p>
                 </div>
 
-                {/* Pied de page */}
                 <div className="text-center text-white/80 text-xs mt-6">
                     <i className="fas fa-shield-alt mr-1"></i> Environnement sécurisé - Groupe OCP
                 </div>

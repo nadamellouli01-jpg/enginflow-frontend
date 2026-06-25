@@ -9,6 +9,7 @@ const DetailDemande = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [demande, setDemande] = useState(null);
+    const [engins, setEngins] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
@@ -47,10 +48,28 @@ const DetailDemande = () => {
         }
     };
 
+    const fetchEnginsByType = async (type) => {
+        if (!type) return;
+        try {
+            const response = await api.get(`/engins/type?type=${type}`);
+            setEngins(response.data);
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    };
+
     useEffect(() => {
         fetchDemande();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
+
+    // Quand la demande est chargée, récupérer les engins du même type
+    useEffect(() => {
+        if (demande && demande.engin?.typeEngin) {
+            fetchEnginsByType(demande.engin.typeEngin);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [demande]);
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '—';
@@ -75,7 +94,6 @@ const DetailDemande = () => {
         return map[statut] || { label: statut, color: 'bg-gray-100 text-gray-700', icon: '📌' };
     };
 
-    // ✅ Téléchargement avec Axios
     const downloadFile = async (chemin) => {
         if (!chemin) return;
         const parts = chemin.split('\\');
@@ -425,15 +443,23 @@ const DetailDemande = () => {
                                     placeholder="Nouveau motif"
                                 />
                             </div>
+                            {/* ✅ Nouveau select pour l'engin (filtré par type) */}
                             <div>
-                                <label className="text-sm font-semibold text-gray-700">Nouveau code inventaire</label>
-                                <input
-                                    type="text"
+                                <label className="text-sm font-semibold text-gray-700">
+                                    Nouvel engin ({demande?.engin?.typeEngin || '—'})
+                                </label>
+                                <select
                                     value={modifyData.codeInventaire}
                                     onChange={(e) => setModifyData({ ...modifyData, codeInventaire: e.target.value })}
                                     className="w-full border rounded-xl p-3 mt-1 focus:ring-2 focus:ring-[#006233] outline-none"
-                                    placeholder="Ex: CAM-002"
-                                />
+                                >
+                                    <option value="">-- Inchangé --</option>
+                                    {engins.map((engin) => (
+                                        <option key={engin.codeInventaire} value={engin.codeInventaire}>
+                                            {engin.codeInventaire} - {engin.capacite}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                         <div className="flex gap-3 mt-6 justify-end">
